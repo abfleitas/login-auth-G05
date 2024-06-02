@@ -1,3 +1,30 @@
-﻿@{
+﻿@model LoginAutenticacion.Web.Models.UsuarioModel;
+
+@{
     Layout = "_InicioLayout";
+    ViewBag.Title = "Inicio de Sesión";
+}
+
+<h2 class="display-4 text-center">@ViewBag.Title</h2>
+
+<div class="container w-25 mx-auto">
+    <form asp-action="Autenticar" method="POST">
+        <div class="mb-2">
+            <label asp-for="Username" class="form-label">Username</label>
+            <input asp-for="Username" type="text" class="form-control" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+
+        <div class="mb-2">
+            <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" type="password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <input type="submit" class="btn btn-primary mt-2" value="Iniciar Sesión" />
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
