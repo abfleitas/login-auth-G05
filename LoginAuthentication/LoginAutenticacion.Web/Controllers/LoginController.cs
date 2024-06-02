@@ -43,6 +43,13 @@ public class LoginController : Controller
                     expires: DateTime.Now.AddMinutes(30),
                     signingCredentials: creds);
 
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                Response.Cookies.Append("JwtToken", tokenString, new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            SameSite = SameSiteMode.Strict
+                        });
                 //return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
                 return RedirectToAction("Bienvenida");
             }
@@ -51,9 +58,10 @@ public class LoginController : Controller
                 ModelState.AddModelError(string.Empty, "Usuario o contraseña incorrectos");
             }
         }
-        return RedirectToAction("Error");
+        return RedirectToAction("Inicio");
     }
 
+    [Authorize]
     public IActionResult Bienvenida()
     {
         return View();

@@ -18,6 +18,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Issuer"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context => {
+                context.HandleResponse();
+                context.Response.Redirect("/Login/Inicio");
+                return Task.CompletedTask;
+            },
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("JwtToken"))
+                {
+                    context.Token = context.Request.Cookies["JwtToken"];
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
