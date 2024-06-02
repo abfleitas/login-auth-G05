@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LoginAuthentication.DATA\LoginAuthentication.DATA.csproj" />
     <ProjectReference Include="..\LoginAuthentication.LOGICA\LoginAuthentication.LOGICA.csproj" />
+    <Folder Include="wwwroot\icon\" />
   </ItemGroup>
 
 </Project>
