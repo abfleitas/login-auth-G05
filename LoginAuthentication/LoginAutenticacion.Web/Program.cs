@@ -1,10 +1,20 @@
+using LoginAuthentication.DATA.EntidadesEF;
+using LoginAuthentication.LOGICA;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 // Add services to the container.
+
+//Conexion a la base de datos
+builder.Services.AddDbContext<LoginAutenticationContext>(options =>
+{
+    options.UseSqlServer(configuration.GetConnectionString("LoginConnection"));
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -35,6 +45,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+
+builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 

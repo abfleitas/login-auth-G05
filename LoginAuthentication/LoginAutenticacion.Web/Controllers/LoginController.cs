@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using LoginAuthentication.LOGICA;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -11,14 +12,22 @@ namespace LoginAutenticacion.Web.Controllers;
 public class LoginController : Controller
 {
     private IConfiguration _configuration;
+    private readonly IUsuarioServicio usuarioServicio;
 
-    public LoginController(IConfiguration configuration)
+    public LoginController(IConfiguration configuration, IUsuarioServicio usuarioServicio)
     {
         _configuration = configuration;
+        this.usuarioServicio = usuarioServicio;
     }
     public IActionResult Inicio()
     {
         return View();
+    }
+    [HttpGet]
+    public IActionResult Test()
+    {
+        var usuarios = this.usuarioServicio.ObtenerTodos();
+        return Json(usuarios);
     }
 
     [HttpPost]
