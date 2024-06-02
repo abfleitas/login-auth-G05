@@ -12,7 +12,7 @@ public interface IUsuarioServicio
 
 }
 
-public class UsuarioServicio
+public class UsuarioServicio : IUsuarioServicio
     {
     private LoginAutenticationContext _context;
 

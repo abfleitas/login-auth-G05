@@ -27,5 +27,8 @@ CREATE TABLE usuario (
     password VARCHAR(255) NOT NULL
 );
 
+INSERT INTO dbo.usuario(nombre,mail,username,password)
+VALUES('test','test@gmail.com','test123','test123');
+
 -asegurense de tener en la consola como proyecto predeterminado LoginAutentication.DATA
 Scaffold-DbContext "Server=(como les aparece en sql);Database=LoginAutentication;Trusted_Connection=True;Encrypt=False" Microsoft.EntityFrameworkCore.SqlServer -OutputDir EntidadesEF
