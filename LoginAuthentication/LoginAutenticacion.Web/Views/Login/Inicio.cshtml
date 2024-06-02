@@ -5,24 +5,44 @@
     ViewBag.Title = "Inicio de Sesión";
 }
 
-<h2 class="display-4 text-center">@ViewBag.Title</h2>
-
-<div class="container w-25 mx-auto">
-    <form asp-action="Autenticar" method="POST">
-        <div class="mb-2">
-            <label asp-for="Username" class="form-label">Username</label>
-            <input asp-for="Username" type="text" class="form-control" />
+<div class="container" id="container">
+    <div class="form-container sign-up">
+        <form method="post">
+            <h1>Create Account</h1>
+            <input type="text" placeholder="Username" />
+            <input type="email" placeholder="E-mail" />
+            <input type="password" placeholder="Password" />
+            <button>Sign Up</button>
+        </form>
+    </div>
+    <div class="form-container sign-in">
+        <form asp-action="Autenticar" method="post">
+            <h1>Sing In</h1>
+            <input asp-for="Username" type="text" placeholder="Username" />
             <span asp-validation-for="Username" class="text-danger"></span>
-        </div>
-
-        <div class="mb-2">
-            <label asp-for="Password" class="form-label">Password</label>
-            <input asp-for="Password" type="password" class="form-control" />
+            <input asp-for="Password" type="password" placeholder="Password" />
             <span asp-validation-for="Password" class="text-danger"></span>
+            <a href="#">Forget Your Password?</a>
+            <button>Sign In</button>
+            <div class="social-icons">
+                <a href="#" class="icon"><img src="~/icon/google.png"/>Sign In with google</a>
+            </div>
+        </form>
+    </div>
+    <div class="toggle-container">
+        <div class="toggle">
+            <div class="toggle-panel toggle-left">
+                <h1>Welcome Back!</h1>
+                <p>Enter your personal details to use all of site features</p>
+                <button class="hidden" id="login">Sing In</button>
+            </div>
+            <div class="toggle-panel toggle-right">
+                <h1>Hello, Friend!</h1>
+                <p>Register with your personal details to use all of site features</p>
+                <button class="hidden" id="register">Sign Up</button>
+            </div>
         </div>
-
-        <input type="submit" class="btn btn-primary mt-2" value="Iniciar Sesión" />
-    </form>
+    </div>
 </div>
 
 @section Scripts {
