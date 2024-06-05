@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using GoogleAuthentication.Services;
+using System;
 
 namespace LoginAutenticacion.Web.Controllers;
 
@@ -21,6 +23,11 @@ public class LoginController : Controller
     }
     public IActionResult Inicio()
     {
+        var clientId = _configuration["OAuth:ClientID"];
+        var url = _configuration["OAuth:Url"];
+
+        var response = GoogleAuth.GetAuthUrl(clientId, url);
+        ViewBag.response = response;
         return View();
     }
     [HttpGet]
@@ -61,6 +68,17 @@ public class LoginController : Controller
             }
         }
         return RedirectToAction("Error");
+    }
+
+    public async Task<ActionResult> RedirectGoogle(string code)
+    {
+        var clientId = _configuration["OAuth:ClientID"];
+        var url = _configuration["OAuth:Url"];
+        var clientSecret = _configuration["OAuth:ClientSecret"];
+
+        var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
+        var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
+        return RedirectToAction("Bienvenida");
     }
 
     public IActionResult Bienvenida()
