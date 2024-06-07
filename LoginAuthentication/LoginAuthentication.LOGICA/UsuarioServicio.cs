@@ -9,6 +9,7 @@ public interface IUsuarioServicio
     Usuario ObtenerUsuarioPorId(int id);
     void ActualizarUsuario(Usuario usuario);
     void EliminarUsuario(int id);
+    void RegistrarUsuario(Usuario usuario);
 
 }
 
@@ -19,6 +20,12 @@ public class UsuarioServicio : IUsuarioServicio
     public UsuarioServicio(LoginAutenticationContext context) {
         this._context = context;
      }
+
+    public void RegistrarUsuario(Usuario usuario)
+    {
+        this._context.Usuarios.Add(usuario);
+        this._context.SaveChanges();
+    }
 
 
     public void AgregarUsuario(Usuario usuario)
