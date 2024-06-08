@@ -2,12 +2,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using GoogleAuthentication.Services;
 using System;
+using LoginAutenticacion.Web.Models;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace LoginAutenticacion.Web.Controllers;
 
@@ -38,7 +41,7 @@ public class LoginController : Controller
     }
 
     [HttpPost]
-    public IActionResult Autenticar(Models.UsuarioModel usuario)
+    public IActionResult Autenticar(UsuarioModel usuario)
     {
         if (ModelState.IsValid)
         {
@@ -46,9 +49,10 @@ public class LoginController : Controller
             {
                 var claims = new[]
                 {
-                new Claim(JwtRegisteredClaimNames.Sub, usuario.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+                    new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Sub, usuario.Username),
+                    new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("role", usuario.Rol)
+                };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -59,7 +63,16 @@ public class LoginController : Controller
                     expires: DateTime.Now.AddMinutes(30),
                     signingCredentials: creds);
 
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
                 //return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+                Response.Cookies.Append("JwtToken", tokenString, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict
+                });
+
                 return RedirectToAction("Bienvenida");
             }
             else
@@ -67,6 +80,7 @@ public class LoginController : Controller
                 ModelState.AddModelError(string.Empty, "Usuario o contraseña incorrectos");
             }
         }
+
         return RedirectToAction("Error");
     }
 
@@ -81,7 +95,14 @@ public class LoginController : Controller
         return RedirectToAction("Bienvenida");
     }
 
+    [Authorize]
     public IActionResult Bienvenida()
+    {
+        return View();
+    }
+
+    [Authorize(Roles = "Admin")]
+    public IActionResult Admin()
     {
         return View();
     }

@@ -9,5 +9,7 @@ public class UsuarioModel
 
     [Required(ErrorMessage = "El campo de contraseña es requerido")]
     public string Password { get; set; }
+    public string Rol { get; set; } = "Admin";
+
 }
 
