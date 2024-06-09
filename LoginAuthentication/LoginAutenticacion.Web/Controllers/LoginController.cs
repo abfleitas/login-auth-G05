@@ -32,14 +32,7 @@ public class LoginController : Controller
         ViewBag.response = response;
         return View();
     }
-    [HttpGet]
-    public IActionResult Test()
-    {
-        var usuarios = _usuarioServicio.ObtenerTodos();
-        return Json(usuarios);
-    }
 
-    [HttpPost]
     public string Autenticar(string usuario, string rol)
     {
         var claims = new[]
