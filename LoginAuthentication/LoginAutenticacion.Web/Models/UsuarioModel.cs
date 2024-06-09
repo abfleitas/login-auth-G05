@@ -4,12 +4,21 @@ namespace LoginAutenticacion.Web.Models;
 
 public class UsuarioModel
 {
-    [Required(ErrorMessage = "El campo de usuario es requerido")]
+    [Required]
+    public string Nombre { get; set; }
+
+    [Required]
+    [EmailAddress]
+    public string Mail { get; set; }
+
+    [Required]
     public string Username { get; set; }
 
-    [Required(ErrorMessage = "El campo de contraseña es requerido")]
+    [Required]
+    [DataType(DataType.Password)]
     public string Password { get; set; }
-    public string Rol { get; set; } = "Admin";
+
+    public string? Rol { get; set; }
 
 }
 

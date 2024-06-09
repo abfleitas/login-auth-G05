@@ -2,27 +2,26 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using GoogleAuthentication.Services;
 using System;
+using LoginAuthentication.DATA.EntidadesEF;
 using LoginAutenticacion.Web.Models;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
-using System.Net;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace LoginAutenticacion.Web.Controllers;
 
 public class LoginController : Controller
 {
     private IConfiguration _configuration;
-    private readonly IUsuarioServicio usuarioServicio;
+    private readonly IUsuarioServicio _usuarioServicio;
 
     public LoginController(IConfiguration configuration, IUsuarioServicio usuarioServicio)
     {
         _configuration = configuration;
-        this.usuarioServicio = usuarioServicio;
+        _usuarioServicio = usuarioServicio;
     }
     public IActionResult Inicio()
     {
@@ -36,52 +35,39 @@ public class LoginController : Controller
     [HttpGet]
     public IActionResult Test()
     {
-        var usuarios = this.usuarioServicio.ObtenerTodos();
+        var usuarios = _usuarioServicio.ObtenerTodos();
         return Json(usuarios);
     }
 
     [HttpPost]
-    public IActionResult Autenticar(UsuarioModel usuario)
+    public string Autenticar(string usuario, string rol)
     {
-        if (ModelState.IsValid)
+        var claims = new[]
         {
-            if (usuario.Username == "admin" && usuario.Password == "admin")
-            {
-                var claims = new[]
-                {
-                    new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Sub, usuario.Username),
-                    new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim("role", usuario.Rol)
-                };
+            new Claim(JwtRegisteredClaimNames.Sub, usuario),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("role", rol)
+        };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-                var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
-                    _configuration["Jwt:Issuer"],
-                    claims,
-                    expires: DateTime.Now.AddMinutes(30),
-                    signingCredentials: creds);
+        var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
+            _configuration["Jwt:Issuer"],
+            claims,
+            expires: DateTime.Now.AddMinutes(30),
+            signingCredentials: creds);
 
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-                //return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-                Response.Cookies.Append("JwtToken", tokenString, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict
-                });
+        Response.Cookies.Append("JwtToken", tokenString, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
 
-                return RedirectToAction("Bienvenida");
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Usuario o contraseña incorrectos");
-            }
-        }
-
-        return RedirectToAction("Error");
+        return tokenString;
     }
 
     public async Task<ActionResult> RedirectGoogle(string code)
@@ -93,6 +79,42 @@ public class LoginController : Controller
         var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
         var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
         return RedirectToAction("Bienvenida");
+    }
+
+    [HttpPost]
+    public IActionResult RegistrarUsuario(Usuario usuario)
+    {
+        if (!ModelState.IsValid)
+            return RedirectToAction("Error");
+
+        _usuarioServicio.RegistrarUsuario(usuario);
+
+        return RedirectToAction("Bienvenida");
+
+    }
+
+    [HttpPost]
+    public IActionResult LoginUsuario(string username, string password)
+    {
+        Usuario usuarioEncontrado;
+        string token = "";
+
+        if (ModelState.IsValid)
+        {
+            usuarioEncontrado = _usuarioServicio.ObtenerUsuarioPorUsernameYPassword(username, password);
+
+            if (usuarioEncontrado != null)
+            {
+                token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
+                
+                if (token != "")
+                {
+                    return RedirectToAction("Bienvenida");
+                }
+            }
+        }
+
+        return RedirectToAction("Error");
     }
 
     [Authorize]

@@ -7,18 +7,27 @@ public interface IUsuarioServicio
     void AgregarUsuario(Usuario usuario);
     List<Usuario> ObtenerTodos();
     Usuario ObtenerUsuarioPorId(int id);
+    Usuario ObtenerUsuarioPorUsernameYPassword(string username, string password);
     void ActualizarUsuario(Usuario usuario);
     void EliminarUsuario(int id);
+    void RegistrarUsuario(Usuario usuario);
 
 }
 
 public class UsuarioServicio : IUsuarioServicio
-    {
+{
     private LoginAutenticationContext _context;
 
-    public UsuarioServicio(LoginAutenticationContext context) {
+    public UsuarioServicio(LoginAutenticationContext context)
+    {
         this._context = context;
-     }
+    }
+
+    public void RegistrarUsuario(Usuario usuario)
+    {
+        this._context.Usuarios.Add(usuario);
+        this._context.SaveChanges();
+    }
 
 
     public void AgregarUsuario(Usuario usuario)
@@ -53,14 +62,13 @@ public class UsuarioServicio : IUsuarioServicio
         this._context.SaveChanges();
     }
 
+    public Usuario ObtenerUsuarioPorUsernameYPassword(string username, string password)
+    {
+        // no se recomienda esta forma para buscar por password pero lo mantengo simple (al menos por ahora)
+        Usuario usuario = _context.Usuarios.Where(u => u.Username == username && u.Password == password)
+                        .FirstOrDefault();
 
-
-
-
-
-
-
-
-
+        return usuario;
+    }
 
 }
