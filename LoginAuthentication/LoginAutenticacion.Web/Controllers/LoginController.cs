@@ -62,7 +62,8 @@ public class LoginController : Controller
                     signingCredentials: creds);
 
                 //return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-                return RedirectToAction("Bienvenida");
+                ViewBag.username = "Admin";
+                return View("Bienvenida");
             }
             else
             {
