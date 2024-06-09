@@ -2,27 +2,27 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using GoogleAuthentication.Services;
 using System;
+using Newtonsoft.Json;
+using LoginAuthentication.DATA.EntidadesEF;
 using LoginAutenticacion.Web.Models;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
-using System.Net;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace LoginAutenticacion.Web.Controllers;
 
 public class LoginController : Controller
 {
     private IConfiguration _configuration;
-    private readonly IUsuarioServicio usuarioServicio;
+    private readonly IUsuarioServicio _usuarioServicio;
 
     public LoginController(IConfiguration configuration, IUsuarioServicio usuarioServicio)
     {
         _configuration = configuration;
-        this.usuarioServicio = usuarioServicio;
+        _usuarioServicio = usuarioServicio;
     }
     public IActionResult Inicio()
     {
@@ -36,7 +36,7 @@ public class LoginController : Controller
     [HttpGet]
     public IActionResult Test()
     {
-        var usuarios = this.usuarioServicio.ObtenerTodos();
+        var usuarios = _usuarioServicio.ObtenerTodos();
         return Json(usuarios);
     }
 
@@ -66,6 +66,7 @@ public class LoginController : Controller
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
                 //return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+
                 Response.Cookies.Append("JwtToken", tokenString, new CookieOptions
                 {
                     HttpOnly = true,
@@ -73,7 +74,8 @@ public class LoginController : Controller
                     SameSite = SameSiteMode.Strict
                 });
 
-                return RedirectToAction("Bienvenida");
+                ViewBag.username = "Admin";
+                return View("Bienvenida");
             }
             else
             {
@@ -92,7 +94,21 @@ public class LoginController : Controller
 
         var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
         var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
+        GoogleUserData googleData = JsonConvert.DeserializeObject<GoogleUserData>(userProfile);
+        ViewBag.username = googleData.name;
+        return View("Bienvenida");
+    }
+
+    [HttpPost]
+    public IActionResult RegistrarUsuario(Usuario usuario)
+    {
+        if (!ModelState.IsValid)
+            return RedirectToAction("Error");
+
+        _usuarioServicio.RegistrarUsuario(usuario);
+
         return RedirectToAction("Bienvenida");
+
     }
 
     [Authorize]
@@ -116,5 +132,6 @@ public class LoginController : Controller
     {
         return View();
     }
+
 }
 
