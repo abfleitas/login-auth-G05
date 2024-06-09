@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using GoogleAuthentication.Services;
 using System;
+using Newtonsoft.Json;
 using LoginAuthentication.DATA.EntidadesEF;
 
 namespace LoginAutenticacion.Web.Controllers;
@@ -79,7 +80,9 @@ public class LoginController : Controller
 
         var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
         var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
-        return RedirectToAction("Bienvenida");
+        GoogleUserData googleData = JsonConvert.DeserializeObject<GoogleUserData>(userProfile);
+        ViewBag.username = googleData.name;
+        return View("Bienvenida");
     }
 
     [HttpPost]
