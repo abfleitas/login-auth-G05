@@ -16,12 +16,12 @@ namespace LoginAutenticacion.Web.Controllers;
 public class LoginController : Controller
 {
     private IConfiguration _configuration;
-    private readonly IUsuarioServicio usuarioServicio;
+    private readonly IUsuarioServicio _usuarioServicio;
 
     public LoginController(IConfiguration configuration, IUsuarioServicio usuarioServicio)
     {
         _configuration = configuration;
-        this.usuarioServicio = usuarioServicio;
+        _usuarioServicio = usuarioServicio;
     }
     public IActionResult Inicio()
     {
@@ -35,7 +35,7 @@ public class LoginController : Controller
     [HttpGet]
     public IActionResult Test()
     {
-        var usuarios = this.usuarioServicio.ObtenerTodos();
+        var usuarios = _usuarioServicio.ObtenerTodos();
         return Json(usuarios);
     }
 
@@ -84,6 +84,18 @@ public class LoginController : Controller
         GoogleUserData googleData = JsonConvert.DeserializeObject<GoogleUserData>(userProfile);
         ViewBag.username = googleData.name;
         return View("Bienvenida");
+    }
+
+    [HttpPost]
+    public IActionResult RegistrarUsuario(Usuario usuario)
+    {
+        if (!ModelState.IsValid)
+            return RedirectToAction("Error");
+
+        _usuarioServicio.RegistrarUsuario(usuario);
+
+        return RedirectToAction("Bienvenida");
+
     }
 
     public IActionResult Bienvenida()
