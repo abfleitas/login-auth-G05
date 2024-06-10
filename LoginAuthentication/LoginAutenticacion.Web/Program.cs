@@ -48,6 +48,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
 
 builder.Services.AddControllersWithViews();

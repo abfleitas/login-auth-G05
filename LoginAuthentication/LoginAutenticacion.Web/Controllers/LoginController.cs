@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using GoogleAuthentication.Services;
 using System;
+using Newtonsoft.Json;
 using LoginAuthentication.DATA.EntidadesEF;
 using LoginAutenticacion.Web.Models;
 
@@ -39,7 +40,7 @@ public class LoginController : Controller
         {
             new Claim(JwtRegisteredClaimNames.Sub, usuario),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("role", rol)
+            new Claim("roles", rol)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -71,7 +72,9 @@ public class LoginController : Controller
 
         var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
         var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
-        return RedirectToAction("Bienvenida");
+        GoogleUserData googleData = JsonConvert.DeserializeObject<GoogleUserData>(userProfile);
+        ViewBag.username = googleData.name;
+        return View("Bienvenida");
     }
 
     [HttpPost]
@@ -99,7 +102,7 @@ public class LoginController : Controller
             if (usuarioEncontrado != null)
             {
                 token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
-                
+
                 if (token != "")
                 {
                     return RedirectToAction("Bienvenida");
@@ -131,5 +134,6 @@ public class LoginController : Controller
     {
         return View();
     }
+
 }
 

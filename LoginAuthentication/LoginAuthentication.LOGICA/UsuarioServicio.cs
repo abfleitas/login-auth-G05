@@ -29,7 +29,6 @@ public class UsuarioServicio : IUsuarioServicio
         this._context.SaveChanges();
     }
 
-
     public void AgregarUsuario(Usuario usuario)
     {
         this._context.Usuarios.Add(usuario);

@@ -1,2 +1,17 @@
-﻿<h1>Bienvenido</h1>
-<a asp-action="Logout">Logout</a>
+﻿@{
+    Layout = "_BienvenidaLayout";
+    ViewBag.Title = "Bienvenido";
+    var username = ViewBag.username;
+}
+
+<div class="container welcome-container">
+    <div class="welcome-message">
+        <h1>¡Bienvenido @username!</h1>
+        <p>Estamos encantados de tenerte de vuelta. Disfruta utilizando nuestra aplicación.</p>
+        <a asp-action="Logout" class="button">Logout</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
