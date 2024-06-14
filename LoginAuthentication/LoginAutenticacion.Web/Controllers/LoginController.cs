@@ -11,6 +11,8 @@ using System;
 using Newtonsoft.Json;
 using LoginAuthentication.DATA.EntidadesEF;
 using LoginAutenticacion.Web.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace LoginAutenticacion.Web.Controllers;
 
@@ -125,8 +127,11 @@ public class LoginController : Controller
         return View();
     }
 
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
+        Response.Cookies.Delete("JwtToken");
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
         return RedirectToAction("Inicio");
     }
 
