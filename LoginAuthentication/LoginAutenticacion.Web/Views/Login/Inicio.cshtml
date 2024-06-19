@@ -8,44 +8,44 @@
 <div class="container" id="container">
     <div class="form-container sign-up">
         <form asp-action="RegistrarUsuario" method="post">
-            <h1>Register</h1>
+            <h1>Registerarme</h1>
             <input asp-for="Nombre" type="text" placeholder="Nombre" />
             <span asp-validation-for="Nombre" class="text-danger"></span>
             <input asp-for="Mail" type="email" placeholder="Email" />
             <span asp-validation-for="Mail" class="text-danger"></span>
             <input asp-for="Username" type="text" placeholder="Username" />
             <span asp-validation-for="Username" class="text-danger"></span>
-            <input asp-for="Password" type="password" placeholder="Password" />
+            <input asp-for="Password" type="password" placeholder="Contraseña" />
             <span asp-validation-for="Password" class="text-danger"></span>
-            <button type="submit">Register</button>
+            <button type="submit">Registrar</button>
         </form>
     </div>
 
     <div class="form-container sign-in">
         <form asp-action="LoginUsuario" method="post">
-            <h1>Sing In</h1>
+            <h1>Iniciar</h1>
             <input asp-for="Username" type="text" placeholder="Username" />
             <span asp-validation-for="Username" class="text-danger"></span>
-            <input asp-for="Password" type="password" placeholder="Password" />
+            <input asp-for="Password" type="password" placeholder="Contraseña" />
             <span asp-validation-for="Password" class="text-danger"></span>
-            <a href="#">Forget Your Password?</a>
-            <button>Sign In</button>
+            <a href="#">Te olvidaste la contraseña?</a>
+            <button>Iniciar sesion</button>
             <div class="social-icons">
-                <a target="_blank" class="icon" href="@ViewBag.response"><img src="~/icon/google.png" />Sign In with google</a>
+                <a target="_blank" class="icon" href="@ViewBag.response"><img src="~/icon/google.png" />Iniciar con Google</a>
             </div>
         </form>
     </div>
     <div class="toggle-container">
         <div class="toggle">
             <div class="toggle-panel toggle-left">
-                <h1>Welcome Back!</h1>
-                <p>Enter your personal details to use all of site features</p>
-                <button class="hidden" id="login">Sing In</button>
+                <h1>Bienvenido!</h1>
+                <p>Ingresa tus datos para conocer mas!</p>
+                <button class="hidden" id="login">Iniciar</button>
             </div>
             <div class="toggle-panel toggle-right">
-                <h1>Hello, Friend!</h1>
-                <p>Register with your personal details to use all of site features</p>
-                <button class="hidden" id="register">Sign Up</button>
+                <h1>Hola amigo!</h1>
+                <p>Registrate para conocer mas detalles de nuestro sitio web</p>
+                <button class="hidden" id="register">Registrarme</button>
             </div>
         </div>
     </div>
