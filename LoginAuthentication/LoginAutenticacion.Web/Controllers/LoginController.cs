@@ -94,22 +94,31 @@ public class LoginController : Controller
     [HttpPost]
     public IActionResult LoginUsuario(string username, string password)
     {
-        Usuario usuarioEncontrado;
-        string token = "";
-
-        if (ModelState.IsValid)
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
-            usuarioEncontrado = _usuarioServicio.ObtenerUsuarioPorUsernameYPassword(username, password);
+            ModelState.AddModelError("", "Usuario y contraseña requeridos.");
+            return View("Inicio");
+        }
 
-            if (usuarioEncontrado != null)
-            {
-                token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
+        Usuario usuarioEncontrado = _usuarioServicio.ObtenerUsuarioPorUsername(username);
 
-                if (token != "")
-                {
-                    return RedirectToAction("Bienvenida");
-                }
-            }
+        if (usuarioEncontrado == null)
+        {
+            ModelState.AddModelError("UserNotFound", "Usuario inexistente.");
+            return View("Inicio");
+        }
+
+        if (usuarioEncontrado.Password != password)
+        {
+            ModelState.AddModelError("InvalidPassword", "Credenciales incorrectas.");
+            return View("Inicio");
+        }
+
+        string token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            return RedirectToAction("Bienvenida");
         }
 
         return RedirectToAction("Error");

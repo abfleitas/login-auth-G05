@@ -24,14 +24,16 @@
     <div class="form-container sign-in">
         <form asp-action="LoginUsuario" method="post">
             <h1>Iniciar</h1>
-            <input asp-for="Username" type="text" placeholder="Username" />
+            <span asp-validation-for="UserNotFound" class="text-danger"></span>
+            <span asp-validation-for="InvalidPassword" class="text-danger"></span>
+            <input asp-for="Username" type="text" placeholder="Username"/>
             <span asp-validation-for="Username" class="text-danger"></span>
-            <input asp-for="Password" type="password" placeholder="Contraseña" />
+            <input asp-for="Password" type="password" placeholder="Contraseña"/>
             <span asp-validation-for="Password" class="text-danger"></span>
             <a href="#">Te olvidaste la contraseña?</a>
             <button>Iniciar sesion</button>
             <div class="social-icons">
-                <a target="_blank" class="icon" href="@ViewBag.response"><img src="~/icon/google.png" />Iniciar con Google</a>
+                <a target="_blank" class="icon" href="@ViewBag.response"><img src="~/icon/google.png"/>Iniciar con Google</a>
             </div>
         </form>
     </div>

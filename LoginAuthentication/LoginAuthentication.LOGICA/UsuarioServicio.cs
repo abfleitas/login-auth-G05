@@ -12,6 +12,7 @@ public interface IUsuarioServicio
     void EliminarUsuario(int id);
     void RegistrarUsuario(Usuario usuario);
 
+    Usuario ObtenerUsuarioPorUsername(string username);
 }
 
 public class UsuarioServicio : IUsuarioServicio
@@ -27,6 +28,11 @@ public class UsuarioServicio : IUsuarioServicio
     {
         this._context.Usuarios.Add(usuario);
         this._context.SaveChanges();
+    }
+
+    public Usuario ObtenerUsuarioPorUsername(string username)
+    {
+        return this._context.Usuarios.Where(u => u.Username == username).FirstOrDefault();
     }
 
     public void AgregarUsuario(Usuario usuario)
