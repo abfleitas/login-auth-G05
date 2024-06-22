@@ -107,7 +107,9 @@ public class LoginController : Controller
 
                 if (token != "")
                 {
-                    return RedirectToAction("Bienvenida");
+                    ViewBag.username = usuarioEncontrado.Username;
+                    ViewBag.esAdmin = usuarioEncontrado.Rol == "Admin";
+                    return View("Bienvenida");
                 }
             }
         }
@@ -124,7 +126,8 @@ public class LoginController : Controller
     [Authorize(Roles = "Admin")]
     public IActionResult Admin()
     {
-        return View();
+        var usuarios = _usuarioServicio.ObtenerTodos();
+        return View(usuarios);
     }
 
     public async Task<IActionResult> Logout()

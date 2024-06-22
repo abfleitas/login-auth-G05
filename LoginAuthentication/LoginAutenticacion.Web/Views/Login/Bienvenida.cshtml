@@ -2,10 +2,15 @@
     Layout = "_BienvenidaLayout";
     ViewBag.Title = "Bienvenido";
     var username = ViewBag.username;
+    bool esAdmin = ViewBag.esAdmin;
 }
 
 <div class="container welcome-container">
     <div class="welcome-message">
+        @if (esAdmin)
+        {
+            <a class="btn btn-outline-success boton-admin" asp-controller="Login" asp-action="Admin">Vista Admin</a>
+        }
         <h1>¡Bienvenido @username!</h1>
         <p>Estamos encantados de tenerte de vuelta. Disfruta utilizando nuestra aplicación.</p>
         <a asp-action="Logout" class="button">Logout</a>
