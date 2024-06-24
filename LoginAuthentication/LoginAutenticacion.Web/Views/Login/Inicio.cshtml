@@ -24,8 +24,8 @@
     <div class="form-container sign-in">
         <form asp-action="LoginUsuario" method="post">
             <h1>Iniciar</h1>
-            <span asp-validation-for="UserNotFound" class="text-danger"></span>
-            <span asp-validation-for="InvalidPassword" class="text-danger"></span>
+            <span asp-validation-for="UserNotFound" class="text-danger error-message" style="font-size: 1.2em;"></span>
+            <span asp-validation-for="InvalidPassword" class="text-danger error-message" style="font-size: 1.2em;"></span>
             <input asp-for="Username" type="text" placeholder="Username"/>
             <span asp-validation-for="Username" class="text-danger"></span>
             <input asp-for="Password" type="password" placeholder="Contraseña"/>

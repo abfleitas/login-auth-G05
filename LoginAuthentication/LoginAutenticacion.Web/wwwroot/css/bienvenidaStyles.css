@@ -8,6 +8,7 @@
 }
 
 .welcome-message {
+    position: relative;
     background-color: #fff;
     padding: 40px;
     border-radius: 20px;
@@ -45,3 +46,9 @@
         .welcome-message .button:hover {
             background-color: #5c6bc0;
         }
+
+.boton-admin {
+    position: absolute;
+    top: 8px;
+    right: 15px;
+}

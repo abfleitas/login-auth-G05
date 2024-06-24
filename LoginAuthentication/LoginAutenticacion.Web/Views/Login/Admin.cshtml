@@ -1,1 +1,35 @@
-﻿<h2 class="text-center">Vista de Admin</h2>
+﻿@model List<LoginAuthentication.DATA.EntidadesEF.Usuario>;
+
+<div class="vh-100 d-flex flex-column justify-content-center">
+    <h2 class="text-center">Vista de Admin</h2>
+    <p class="text-muted text-center">Lista de usuarios</p>
+
+    <div class="w-50 mx-auto">
+        <table class="table table-primary table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Mail</th>
+                    <th>Username</th>
+                    <th>Rol</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in Model)
+                {
+                    <tr>
+                        <td>@usuario.Id</td>
+                        <td>@usuario.Nombre</td>
+                        <td>@usuario.Mail</td>
+                        <td>@usuario.Username</td>
+                        <td>@usuario.Rol</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <a asp-action="Logout" class="btn btn-danger">Logout</a>
+    </div>
+
+</div>

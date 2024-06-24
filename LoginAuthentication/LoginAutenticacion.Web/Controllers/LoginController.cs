@@ -94,34 +94,34 @@ public class LoginController : Controller
     [HttpPost]
     public IActionResult LoginUsuario(string username, string password)
     {
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-        {
-            ModelState.AddModelError("", "Usuario y contraseña requeridos.");
-            return View("Inicio");
-        }
-
         Usuario usuarioEncontrado = _usuarioServicio.ObtenerUsuarioPorUsername(username);
 
         if (usuarioEncontrado == null)
         {
             ModelState.AddModelError("UserNotFound", "Usuario inexistente.");
-            return View("Inicio");
         }
-
-        if (usuarioEncontrado.Password != password)
+        else if (usuarioEncontrado.Password != password)
         {
             ModelState.AddModelError("InvalidPassword", "Credenciales incorrectas.");
-            return View("Inicio");
         }
-
-        string token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
-
-        if (!string.IsNullOrEmpty(token))
+        else
         {
-            return RedirectToAction("Bienvenida");
+            string token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                ViewBag.username = usuarioEncontrado.Username;
+                ViewBag.esAdmin = usuarioEncontrado.Rol == "Admin";
+                return View("Bienvenida");
+            }
         }
 
-        return RedirectToAction("Error");
+        // Reasignar el valor de ViewBag.response
+        var clientId = _configuration["OAuth:ClientID"];
+        var url = _configuration["OAuth:Url"];
+        ViewBag.response = GoogleAuth.GetAuthUrl(clientId, url);
+
+        return View("Inicio");
     }
 
     [Authorize]
