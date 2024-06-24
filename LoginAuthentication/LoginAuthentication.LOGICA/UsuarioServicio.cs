@@ -11,6 +11,7 @@ public interface IUsuarioServicio
     void ActualizarUsuario(Usuario usuario);
     void EliminarUsuario(int id);
     void RegistrarUsuario(Usuario usuario);
+    bool ExisteUsuarioPorEmail(string email);
 
 }
 
@@ -59,6 +60,11 @@ public class UsuarioServicio : IUsuarioServicio
 
         this._context.Usuarios.Remove(usuario);
         this._context.SaveChanges();
+    }
+
+    public bool ExisteUsuarioPorEmail(string email)
+    {
+        return _context.Usuarios.Any(u => u.Mail == email);
     }
 
     public Usuario ObtenerUsuarioPorUsernameYPassword(string username, string password)
