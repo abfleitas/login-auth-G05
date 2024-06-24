@@ -31,7 +31,7 @@
             <a href="#">Te olvidaste la contraseña?</a>
             <button>Iniciar sesion</button>
             <div class="social-icons">
-                <a target="_blank" class="icon" href="@ViewBag.response"><img src="~/icon/google.png" />Iniciar con Google</a>
+                <a class="icon" href="@ViewBag.response"><img src="~/icon/google.png" />Iniciar con Google</a>
             </div>
         </form>
     </div>
@@ -50,7 +50,17 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <script>
+        alert("@ViewBag.ErrorMessage");
+    </script>}
+@if (!string.IsNullOrEmpty(ViewBag.Ok))
+    {
+        <script>
+            alert("@ViewBag.Ok");
+        </script>
+    }
+    @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

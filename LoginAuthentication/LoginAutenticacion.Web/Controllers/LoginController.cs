@@ -9,6 +9,7 @@ using System.Text;
 using GoogleAuthentication.Services;
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using LoginAuthentication.DATA.EntidadesEF;
 using LoginAutenticacion.Web.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -20,18 +21,17 @@ public class LoginController : Controller
 {
     private IConfiguration _configuration;
     private readonly IUsuarioServicio _usuarioServicio;
+    private readonly IGoogleAuthService _googleAuthService;
 
-    public LoginController(IConfiguration configuration, IUsuarioServicio usuarioServicio)
+    public LoginController(IConfiguration configuration, IUsuarioServicio usuarioServicio, IGoogleAuthService googleAuthService)
     {
         _configuration = configuration;
         _usuarioServicio = usuarioServicio;
+        _googleAuthService = googleAuthService;
     }
     public IActionResult Inicio()
     {
-        var clientId = _configuration["OAuth:ClientID"];
-        var url = _configuration["OAuth:Url"];
-
-        var response = GoogleAuth.GetAuthUrl(clientId, url);
+         var response = _googleAuthService.GetGoogleAuthUrl();
         ViewBag.response = response;
         return View();
     }
@@ -68,13 +68,21 @@ public class LoginController : Controller
 
     public async Task<ActionResult> RedirectGoogle(string code)
     {
-        var clientId = _configuration["OAuth:ClientID"];
-        var url = _configuration["OAuth:Url"];
-        var clientSecret = _configuration["OAuth:ClientSecret"];
-
-        var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
-        var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
-        GoogleUserData googleData = JsonConvert.DeserializeObject<GoogleUserData>(userProfile);
+        var googleData = await _googleAuthService.GetGoogleUserDataAsync(code);
+        if(!_usuarioServicio.ExisteUsuarioPorEmail(googleData.email))
+        {
+            var usuario = new Usuario
+            {
+                Nombre = googleData.given_name,
+                Mail = googleData.email,
+                Username = googleData.name,
+                Password = "",
+                Rol = "Usuario",
+            };
+            _usuarioServicio.RegistrarUsuario(usuario);
+            ViewBag.username = googleData.name;
+            return View("Bienvenida");
+        }
         ViewBag.username = googleData.name;
         return View("Bienvenida");
     }
@@ -85,10 +93,15 @@ public class LoginController : Controller
         if (!ModelState.IsValid)
             return RedirectToAction("Error");
 
+        if (_usuarioServicio.ExisteUsuarioPorEmail(usuario.Mail))
+        {
+            ViewBag.ErrorMessage = $"Ya existe un usuario registrado con el email proporcionado.";
+            return View("Inicio");
+        }
+
         _usuarioServicio.RegistrarUsuario(usuario);
 
         return RedirectToAction("Bienvenida");
-
     }
 
     [HttpPost]
