@@ -96,6 +96,11 @@ public class LoginController : Controller
         if (_usuarioServicio.ExisteUsuarioPorEmail(usuario.Mail))
         {
             ViewBag.ErrorMessage = $"Ya existe un usuario registrado con el email proporcionado.";
+            
+            var clientId = _configuration["OAuth:ClientID"];
+            var url = _configuration["OAuth:Url"];
+            ViewBag.response = GoogleAuth.GetAuthUrl(clientId, url);
+            
             return View("Inicio");
         }
 
@@ -107,27 +112,33 @@ public class LoginController : Controller
     [HttpPost]
     public IActionResult LoginUsuario(string username, string password)
     {
-        Usuario usuarioEncontrado;
-        string token = "";
+        Usuario usuarioEncontrado = _usuarioServicio.ObtenerUsuarioPorUsername(username);
 
-        if (ModelState.IsValid)
+        if (usuarioEncontrado == null)
         {
-            usuarioEncontrado = _usuarioServicio.ObtenerUsuarioPorUsernameYPassword(username, password);
+            ModelState.AddModelError("UserNotFound", "Usuario inexistente.");
+        }
+        else if (usuarioEncontrado.Password != password)
+        {
+            ModelState.AddModelError("InvalidPassword", "Credenciales incorrectas.");
+        }
+        else
+        {
+            string token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
 
-            if (usuarioEncontrado != null)
+            if (!string.IsNullOrEmpty(token))
             {
-                token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
-
-                if (token != "")
-                {
-                    ViewBag.username = usuarioEncontrado.Username;
-                    ViewBag.esAdmin = usuarioEncontrado.Rol == "Admin";
-                    return View("Bienvenida");
-                }
+                ViewBag.username = usuarioEncontrado.Username;
+                ViewBag.esAdmin = usuarioEncontrado.Rol == "Admin";
+                return View("Bienvenida");
             }
         }
+        
+        var clientId = _configuration["OAuth:ClientID"];
+        var url = _configuration["OAuth:Url"];
+        ViewBag.response = GoogleAuth.GetAuthUrl(clientId, url);
 
-        return RedirectToAction("Error");
+        return View("Inicio");
     }
 
     [Authorize]
