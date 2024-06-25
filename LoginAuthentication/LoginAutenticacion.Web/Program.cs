@@ -94,6 +94,7 @@ builder.Services.AddAuthentication(options =>
 
 
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
+builder.Services.AddTransient<IGoogleAuthService, GoogleAuthService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
