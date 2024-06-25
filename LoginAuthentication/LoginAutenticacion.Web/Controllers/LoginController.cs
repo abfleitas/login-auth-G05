@@ -9,6 +9,7 @@ using System.Text;
 using GoogleAuthentication.Services;
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using LoginAuthentication.DATA.EntidadesEF;
 using LoginAutenticacion.Web.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -20,37 +21,42 @@ public class LoginController : Controller
 {
     private readonly IUsuarioServicio _usuarioServicio;
     private readonly IJwtServicio _jwtServicio;
-    private readonly IOAuthConfigServicio _oAuthConfigServicio;
     private readonly IEmailServicio _emailServicio;
+    private readonly IGoogleAuthService _googleAuthService;
 
 
-    public LoginController(IEmailServicio emailServicio,IOAuthConfigServicio oAuthConfigServicio, IUsuarioServicio usuarioServicio, IJwtServicio jwtServicio)
+    public LoginController(IEmailServicio emailServicio,IGoogleAuthService googleAuthService, IUsuarioServicio usuarioServicio, IJwtServicio jwtServicio)
     {
         _usuarioServicio = usuarioServicio;
         _jwtServicio = jwtServicio;
-        _oAuthConfigServicio = oAuthConfigServicio;
+        _googleAuthService = googleAuthService;
         _emailServicio = emailServicio;
         
     }
     public IActionResult Inicio()
     {
-        var clientId = _oAuthConfigServicio.ObtenerClientId();
-        var url = _oAuthConfigServicio.ObtenerUrl();
-
-        var response = GoogleAuth.GetAuthUrl(clientId, url);
+         var response = _googleAuthService.GetGoogleAuthUrl();
         ViewBag.response = response;
         return View();
     }
     
     public async Task<ActionResult> RedirectGoogle(string code)
     {
-        var clientId = _oAuthConfigServicio.ObtenerClientId();
-        var url = _oAuthConfigServicio.ObtenerUrl();
-        var clientSecret = _oAuthConfigServicio.ObtenerClientSecret();
-
-        var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
-        var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
-        GoogleUserData googleData = JsonConvert.DeserializeObject<GoogleUserData>(userProfile);
+        var googleData = await _googleAuthService.GetGoogleUserDataAsync(code);
+        if(!_usuarioServicio.ExisteUsuarioPorEmail(googleData.email))
+        {
+            var usuario = new Usuario
+            {
+                Nombre = googleData.given_name,
+                Mail = googleData.email,
+                Username = googleData.name,
+                Password = "",
+                Rol = "Usuario",
+            };
+            _usuarioServicio.RegistrarUsuario(usuario);
+            ViewBag.username = googleData.name;
+            return View("Bienvenida");
+        }
         ViewBag.username = googleData.name;
         return View("Bienvenida");
     }
@@ -60,7 +66,18 @@ public class LoginController : Controller
     {
         if (!ModelState.IsValid)
             return RedirectToAction("Error");
-    
+
+        if (_usuarioServicio.ExisteUsuarioPorEmail(usuario.Mail))
+        {
+            ViewBag.ErrorMessage = $"Ya existe un usuario registrado con el email proporcionado.";
+            
+            var clientId = _configuration["OAuth:ClientID"];
+            var url = _configuration["OAuth:Url"];
+            ViewBag.response = GoogleAuth.GetAuthUrl(clientId, url);
+            
+            return View("Inicio");
+        }
+
         _usuarioServicio.RegistrarUsuario(usuario);
     
         string token = _jwtServicio.GenerarTokenDeVerificacionDeCorreo(usuario.Mail, usuario.Id.ToString());
@@ -76,13 +93,15 @@ public class LoginController : Controller
     [HttpPost]
     public IActionResult LoginUsuario(string username, string password)
     {
-        Usuario usuarioEncontrado;
-        string token = "";
+        Usuario usuarioEncontrado = _usuarioServicio.ObtenerUsuarioPorUsername(username);
 
-        if (ModelState.IsValid)
+        if (usuarioEncontrado == null)
+        {
+            ModelState.AddModelError("UserNotFound", "Usuario inexistente.");
+        }
+        else if (usuarioEncontrado.Password != password)
         {
             usuarioEncontrado = _usuarioServicio.ObtenerUsuarioPorUsernameYPassword(username, password);
-            Console.WriteLine("model.Username" + username + "model.Password" + password);
 
             if (usuarioEncontrado != null)
             {
@@ -96,6 +115,11 @@ public class LoginController : Controller
                 }
 
                 token = _jwtServicio.GenerarToken(usuarioEncontrado.Username, usuarioEncontrado.Rol);
+            ModelState.AddModelError("InvalidPassword", "Credenciales incorrectas.");
+        }
+        else
+        {
+            string token = Autenticar(usuarioEncontrado.Username, usuarioEncontrado.Rol);
 
                 if (token != "")
                 {
@@ -108,10 +132,19 @@ public class LoginController : Controller
 
                     return RedirectToAction("Bienvenida");
                 }
+            if (!string.IsNullOrEmpty(token))
+            {
+                ViewBag.username = usuarioEncontrado.Username;
+                ViewBag.esAdmin = usuarioEncontrado.Rol == "Admin";
+                return View("Bienvenida");
             }
         }
+        //ARREGLAR con servicio google
+        var clientId = _configuration["OAuth:ClientID"];
+        var url = _configuration["OAuth:Url"];
+        ViewBag.response = GoogleAuth.GetAuthUrl(clientId, url);
 
-        return RedirectToAction("Error");
+        return View("Inicio");
     }
     
     [HttpGet]
@@ -186,7 +219,8 @@ public class LoginController : Controller
     [Authorize(Roles = "Admin")]
     public IActionResult Admin()
     {
-        return View();
+        var usuarios = _usuarioServicio.ObtenerTodos();
+        return View(usuarios);
     }
 
     public async Task<IActionResult> Logout()

@@ -95,8 +95,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
 builder.Services.AddScoped<IJwtServicio, JwtServicio>();
-builder.Services.AddScoped<IOAuthConfigServicio, OAuthConfigServicio>();
 builder.Services.AddScoped<IEmailServicio, EmailServicio>();
+builder.Services.AddTransient<IGoogleAuthService, GoogleAuthService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();

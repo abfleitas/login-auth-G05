@@ -1,20 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace LoginAutenticacion.Web.Models;
 
 public class UsuarioModel
 {
-    [Required]
+    [Required(ErrorMessage = "El campo Nombre es requerido.")]
     public string Nombre { get; set; }
 
-    [Required]
-    [EmailAddress]
+    [Required(ErrorMessage = "El campo Mail es requerido.")]
+    [EmailAddress(ErrorMessage = "El campo Mail debe ser una dirección de correo electrónico válida.")]
     public string Mail { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "El campo Username es requerido.")]
     public string Username { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "El campo Password es requerido.")]
     [DataType(DataType.Password)]
     public string Password { get; set; }
 
@@ -23,5 +24,8 @@ public class UsuarioModel
     [Display(Name = "EmailNotVerified")]
     public string EmailNotVerified { get; set; }
 
+    [BindNever]
+    public string UserNotFound { get; set; }
+    [BindNever]
+    public string InvalidPassword { get; set; }
 }
-

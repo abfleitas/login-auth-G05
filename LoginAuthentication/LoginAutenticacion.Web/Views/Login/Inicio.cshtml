@@ -40,14 +40,16 @@
                 <span class="text-danger error-message" style="font-size: 1.2em;">@ViewBag.EmailNotVerifiedMessage</span>
                 <a href="@ViewBag.EmailVerificationLink">¿Reenviar email para verificación?</a>
             }
-            <input asp-for="Username" type="text" placeholder="Username" />
+            <span asp-validation-for="UserNotFound" class="text-danger error-message" style="font-size: 1.2em;"></span>
+            <span asp-validation-for="InvalidPassword" class="text-danger error-message" style="font-size: 1.2em;"></span>
+            <input asp-for="Username" type="text" placeholder="Username"/>
             <span asp-validation-for="Username" class="text-danger"></span>
-            <input asp-for="Password" type="password" placeholder="Contraseña" />
+            <input asp-for="Password" type="password" placeholder="Contraseña"/>
             <span asp-validation-for="Password" class="text-danger"></span>
             <a href="#">Te olvidaste la contraseña?</a>
             <button>Iniciar sesion</button>
             <div class="social-icons">
-                <a target="_blank" class="icon" href="@ViewBag.response"><img src="~/icon/google.png" />Iniciar con Google</a>
+                <a class="icon" href="@ViewBag.response"><img src="~/icon/google.png" />Iniciar con Google</a>
             </div>
         </form>
     </div>
@@ -66,7 +68,17 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <script>
+        alert("@ViewBag.ErrorMessage");
+    </script>}
+@if (!string.IsNullOrEmpty(ViewBag.Ok))
+    {
+        <script>
+            alert("@ViewBag.Ok");
+        </script>
+    }
+    @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
