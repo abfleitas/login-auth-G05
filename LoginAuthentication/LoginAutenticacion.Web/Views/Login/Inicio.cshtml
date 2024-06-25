@@ -4,11 +4,22 @@
     Layout = "_InicioLayout";
     ViewBag.Title = "Inicio de Sesión";
 }
-
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        alert("@Html.Raw(TempData["SuccessMessage"])");
+    </script>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+<script>
+    alert("@Html.Raw(TempData["SuccessMessage"])");
+</script>
+}
 <div class="container" id="container">
     <div class="form-container sign-up">
         <form asp-action="RegistrarUsuario" method="post">
-            <h1>Registerarme</h1>
+            <h1>Registrarme</h1>
             <input asp-for="Nombre" type="text" placeholder="Nombre" />
             <span asp-validation-for="Nombre" class="text-danger"></span>
             <input asp-for="Mail" type="email" placeholder="Email" />
@@ -24,6 +35,11 @@
     <div class="form-container sign-in">
         <form asp-action="LoginUsuario" method="post">
             <h1>Iniciar</h1>
+            @if (!string.IsNullOrEmpty(ViewBag.EmailNotVerifiedMessage))
+            {
+                <span class="text-danger error-message" style="font-size: 1.2em;">@ViewBag.EmailNotVerifiedMessage</span>
+                <a href="@ViewBag.EmailVerificationLink">¿Reenviar email para verificación?</a>
+            }
             <input asp-for="Username" type="text" placeholder="Username" />
             <span asp-validation-for="Username" class="text-danger"></span>
             <input asp-for="Password" type="password" placeholder="Contraseña" />

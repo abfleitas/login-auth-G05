@@ -23,7 +23,7 @@ namespace LoginAuthentication.DATA.EntidadesEF
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=localhost;Database=LoginAutentication;Trusted_Connection=true;");
+                optionsBuilder.UseSqlServer("Server=DESKTOP-VU9C71D\\SQLEXPRESS;Database=LoginAutentication;Trusted_Connection=True;Encrypt=False");
             }
         }
 
@@ -34,6 +34,8 @@ namespace LoginAuthentication.DATA.EntidadesEF
                 entity.ToTable("usuario");
 
                 entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.EmailVerificado).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.Mail)
                     .HasMaxLength(100)
@@ -53,7 +55,7 @@ namespace LoginAuthentication.DATA.EntidadesEF
                 entity.Property(e => e.Rol)
                     .HasMaxLength(100)
                     .IsUnicode(false)
-                    .HasDefaultValueSql("('Usuario')");
+                    .HasColumnName("rol");
 
                 entity.Property(e => e.Username)
                     .HasMaxLength(50)

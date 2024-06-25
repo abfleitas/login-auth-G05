@@ -19,6 +19,9 @@ public class UsuarioModel
     public string Password { get; set; }
 
     public string? Rol { get; set; }
+    
+    [Display(Name = "EmailNotVerified")]
+    public string EmailNotVerified { get; set; }
 
 }
 
