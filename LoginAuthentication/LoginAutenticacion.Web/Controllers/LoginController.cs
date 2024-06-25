@@ -96,6 +96,11 @@ public class LoginController : Controller
         if (_usuarioServicio.ExisteUsuarioPorEmail(usuario.Mail))
         {
             ViewBag.ErrorMessage = $"Ya existe un usuario registrado con el email proporcionado.";
+            
+            var clientId = _configuration["OAuth:ClientID"];
+            var url = _configuration["OAuth:Url"];
+            ViewBag.response = GoogleAuth.GetAuthUrl(clientId, url);
+            
             return View("Inicio");
         }
 
@@ -128,8 +133,7 @@ public class LoginController : Controller
                 return View("Bienvenida");
             }
         }
-
-        // Reasignar el valor de ViewBag.response
+        
         var clientId = _configuration["OAuth:ClientID"];
         var url = _configuration["OAuth:Url"];
         ViewBag.response = GoogleAuth.GetAuthUrl(clientId, url);
