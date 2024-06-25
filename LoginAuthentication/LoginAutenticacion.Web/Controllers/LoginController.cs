@@ -133,7 +133,8 @@ public class LoginController : Controller
     [Authorize(Roles = "Admin")]
     public IActionResult Admin()
     {
-        return View();
+        var usuarios = _usuarioServicio.ObtenerTodos();
+        return View(usuarios);
     }
 
     public async Task<IActionResult> Logout()
