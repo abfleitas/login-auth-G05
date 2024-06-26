@@ -145,95 +145,95 @@ public class LoginController : Controller
         return View("Inicio");
     }
 
-[HttpGet]
-        [Route("verificar_email")]
-        public IActionResult VerificarEmail(string token)
+    [HttpGet]
+    [Route("verificar_email")]
+    public IActionResult VerificarEmail(string token)
+    {
+        // Verificar el token
+        var claimPrincipal = _jwtServicio.VerificarToken(token);
+
+        // Si el token no es válido, redirigir a una página de error
+        if (claimPrincipal == null)
         {
-            // Verificar el token
-            var claimPrincipal = _jwtServicio.VerificarToken(token);
-
-            // Si el token no es válido, redirigir a una página de error
-            if (claimPrincipal == null)
-            {
-                return RedirectToAction("Error");
-            }
-
-            // Obtener el ID del usuario del token
-            var userIdClaim = claimPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return RedirectToAction("Error");
-            }
-
-            int userId = int.Parse(userIdClaim.Value);
-
-            // Obtener el usuario
-            var usuario = _usuarioServicio.ObtenerUsuarioPorId(userId);
-            if (usuario == null)
-            {
-                return RedirectToAction("Error");
-            }
-
-            // Activar la cuenta del usuario
-            usuario.EmailVerificado = true;
-            _usuarioServicio.ActualizarUsuario(usuario);
-
-            // Redirigir a la página de inicio
-            return RedirectToAction("Inicio");
+            return RedirectToAction("Error");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ReenviarEmailDeVerificacion(int userId)
+        // Obtener el ID del usuario del token
+        var userIdClaim = claimPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
         {
-            // Obtener el usuario
-            var usuario = _usuarioServicio.ObtenerUsuarioPorId(userId);
-            if (usuario == null)
-            {
-                return RedirectToAction("Error");
-            }
-
-            // Generar un nuevo token de verificación de correo
-            string token = _jwtServicio.GenerarTokenDeVerificacionDeCorreo(usuario.Mail, usuario.Id.ToString());
-
-            // Crear el enlace de verificación
-            string verificationLink = $"https://localhost:8080/verificar_email?token={token}";
-
-            // Enviar el correo electrónico
-            await _emailServicio.EnviarEmailAsync(usuario.Mail, "Reenviar email para verificación",
-                $"Haz clic en este enlace para verificar tu correo electrónico: {verificationLink}");
-
-            // Establecer el mensaje de éxito en TempData
-            TempData["SuccessMessage"] = "Correo electrónico reenviado con éxito.";
-
-            // Redirigir a la página de inicio
-            return RedirectToAction("Inicio");
+            return RedirectToAction("Error");
         }
 
-        [Authorize]
-        public IActionResult Bienvenida()
+        int userId = int.Parse(userIdClaim.Value);
+
+        // Obtener el usuario
+        var usuario = _usuarioServicio.ObtenerUsuarioPorId(userId);
+        if (usuario == null)
         {
-            return View();
+            return RedirectToAction("Error");
         }
 
-        [Authorize(Roles = "Admin")]
-        public IActionResult Admin()
-        {
-            var usuarios = _usuarioServicio.ObtenerTodos();
-            return View(usuarios);
-        }
+        // Activar la cuenta del usuario
+        usuario.EmailVerificado = true;
+        _usuarioServicio.ActualizarUsuario(usuario);
 
-        public async Task<IActionResult> Logout()
-        {
-            Response.Cookies.Delete("JwtToken");
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            return RedirectToAction("Inicio");
-        }
-
-        public IActionResult Error()
-        {
-            return View();
-        }
-
+        // Redirigir a la página de inicio
+        return RedirectToAction("Inicio");
     }
+
+    [HttpGet]
+    public async Task<IActionResult> ReenviarEmailDeVerificacion(int userId)
+    {
+        // Obtener el usuario
+        var usuario = _usuarioServicio.ObtenerUsuarioPorId(userId);
+        if (usuario == null)
+        {
+            return RedirectToAction("Error");
+        }
+
+        // Generar un nuevo token de verificación de correo
+        string token = _jwtServicio.GenerarTokenDeVerificacionDeCorreo(usuario.Mail, usuario.Id.ToString());
+
+        // Crear el enlace de verificación
+        string verificationLink = $"https://localhost:8080/verificar_email?token={token}";
+
+        // Enviar el correo electrónico
+        await _emailServicio.EnviarEmailAsync(usuario.Mail, "Reenviar email para verificación",
+            $"Haz clic en este enlace para verificar tu correo electrónico: {verificationLink}");
+
+        // Establecer el mensaje de éxito en TempData
+        TempData["SuccessMessage"] = "Correo electrónico reenviado con éxito.";
+
+        // Redirigir a la página de inicio
+        return RedirectToAction("Inicio");
+    }
+
+    [Authorize]
+    public IActionResult Bienvenida()
+    {
+        return View();
+    }
+
+    [Authorize(Roles = "Admin")]
+    public IActionResult Admin()
+    {
+        var usuarios = _usuarioServicio.ObtenerTodos();
+        return View(usuarios);
+    }
+
+    public async Task<IActionResult> Logout()
+    {
+        Response.Cookies.Delete("JwtToken");
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return RedirectToAction("Inicio");
+    }
+
+    public IActionResult Error()
+    {
+        return View();
+    }
+
+}
 

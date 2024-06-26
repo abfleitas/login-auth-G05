@@ -1,4 +1,9 @@
-﻿.welcome-container {
+﻿body {
+    background-color: #c9d6ff;
+    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+}
+
+.welcome-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -30,7 +35,14 @@
         margin-bottom: 30px;
     }
 
+    .welcome-message img.welcome-gif {
+        display: flex;
+        margin: 0 auto 20px;
+    }
+
     .welcome-message .button {
+        display: inline-block;
+        margin: 5px 10px 5px 10px;
         background-color: #512da8;
         color: #fff;
         padding: 10px 20px;
