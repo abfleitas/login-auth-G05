@@ -9,7 +9,8 @@ CREATE TABLE usuario (
 	mail VARCHAR(100) NOT NULL,
 	username VARCHAR(50) NOT NULL,
 	password VARCHAR(255) NOT NULL,
-	rol VARCHAR(100) DEFAULT 'Usuario'
+	rol VARCHAR(100) DEFAULT 'Usuario',
+	EmailVerificado BIT DEFAULT 0
 );
 
 INSERT INTO dbo.usuario(nombre, mail, username, password) 
